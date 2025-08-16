@@ -62,18 +62,38 @@ exports.createTour = (req, res) => {
     }
   );
 };
+
 exports.updateTour = (req, res) => {
-  res.status(200).json({
-    status: 'success',
-    data: {
-      tour: '<updated tour...>',
-    },
-  });
+  const id = req.params.id * 1;
+  const tourIdx = tours.findIndex((el) => el.id === id);
+  if (tourIdx === -1) {
+    return res.status(404).json({ status: 'fail', message: 'Tour not found' });
+  }
+  tours[tourIdx] = { ...tours[tourIdx], ...req.body };
+  fs.writeFile(
+    `${__dirname}/../dev-data/data/tours-simple.json`,
+    JSON.stringify(tours, null, 2),
+    (err) => {
+      res.status(200).json({
+        status: 'success',
+        data: { tour: tours[tourIdx] },
+      });
+    }
+  );
 };
+
 exports.deleteTour = (req, res) => {
-  res.status(204).json({
-    //ststus code 204(no content)
-    status: 'success',
-    data: null, //we don't send any data back
-  });
+  const id = req.params.id * 1;
+  const tourIdx = tours.findIndex((el) => el.id === id);
+  if (tourIdx === -1) {
+    return res.status(404).json({ status: 'fail', message: 'Tour not found' });
+  }
+  tours.splice(tourIdx, 1);
+  fs.writeFile(
+    `${__dirname}/../dev-data/data/tours-simple.json`,
+    JSON.stringify(tours, null, 2),
+    (err) => {
+      res.status(204).json({ status: 'success', data: null });
+    }
+  );
 };
